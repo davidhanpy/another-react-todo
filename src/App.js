@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import TodoListTemplate from './components/TodoListTemplate';
 import Form from './components/Form';
 import TodoItemList from './components/TodoItemList';
-
+import axios from 'axios';
 
 class App extends Component {
 
@@ -10,13 +10,15 @@ class App extends Component {
 
   state = {
     input: '',
-    todos: [
-      { id: 0, text: ' 리액트 소개', checked: false },
-      { id: 1, text: 'JSX 사용해보기', checked: true },
-      { id: 2, text: '라이프 사이클 이해하기', checked: false },
-    ]
+    todos: []
   }
 
+  componentDidMount() {
+    axios.get('https://jsonplaceholder.typicode.com/todos')
+    .then((result) => {
+      this.setState({todos: result.data});
+    })
+  }
   handleChange = (e) => {
     this.setState({
       input: e.target.value // input 의 다음 바뀔 값
@@ -30,8 +32,8 @@ class App extends Component {
       // concat 을 사용하여 배열에 추가
       todos: todos.concat({
         id: this.id++,
-        text: input,
-        checked: false
+        title: input,
+        completed: false
       })
     });
   }
@@ -55,12 +57,14 @@ class App extends Component {
     // 기존의 값들을 복사하고, checked 값을 덮어쓰기
     nextTodos[index] = { 
       ...selected, 
-      checked: !selected.checked
+      completed: !selected.completed
     };
-
-    this.setState({
-      todos: nextTodos
-    });
+    axios.post('').then( () => {
+      this.setState({
+        todos: nextTodos
+      });
+    })
+    
   }
 
   handleRemove = (id) => {
