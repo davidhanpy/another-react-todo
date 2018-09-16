@@ -1,0 +1,15 @@
+.auto-complete {
+  position: relative
+}
+.auto-complete ul {
+  position: absolute;
+  margin: 0;
+  width: 200px;
+  background-color:#fff;
+  border: 2px solid palevioletred;
+  list-style: none;
+  padding: 0;
+}
+.auto-complete li {
+  padding: 6px 12px;
+}

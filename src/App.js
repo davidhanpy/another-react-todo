@@ -10,30 +10,51 @@ class App extends Component {
 
   state = {
     input: '',
-    todos: []
+    original: [],
+    todos: [],
+    searched: [],
   }
 
   componentDidMount() {
-    axios.get('http://127.0.0.1:8000/todolist/todo/')
+    // axios.get('http://127.0.0.1:8000/todolist/todo/')
+    axios.get('https://jsonplaceholder.typicode.com/todos')
     .then((result) => {
-      this.setState({todos:JSON.parse(result.data)});
+      // this.setState({todos:JSON.parse(result.data)});
+      this.setState({original: result.data, todos: result.data});
     })
   }
   
   handleChange = (e) => {
-    this.setState({
-      input: e.target.value // input 의 다음 바뀔 값
-    });
+    const { original } = this.state;
+    if (e.target.value.length > 0) {
+      const searched = original.filter((item) => (
+        item.title.includes(e.target.value)
+      ));
+      this.setState({
+        searched,
+        input: e.target.value // input 의 다음 바뀔 값
+      });
+    } else {
+      this.setState({
+        searched: [],
+        input: e.target.value // input 의 다음 바뀔 값
+      });
+    }
   }
 
   handleCreate = () => {
-    const { input } = this.state;
-    axios.post('http://127.0.0.1:8000/todolist/todo/', {text:input})
-    .then((result) => {
-    this.setState({
-      input:'',
-      todos: result.data});
-  })
+    const { input, original } = this.state;
+    // axios.post('http://127.0.0.1:8000/todolist/todo/', {text:input})
+    // .then((result) => {
+    // this.setState({
+    //   input:'',
+    //   todos: result.data
+    // });
+    // })
+    const filtered = original.filter((item) => (
+      item.title.includes(input)
+    ));
+    this.setState({ todos: filtered });
 }
     // this.setState({
     //   input: '', // 인풋 비우고
@@ -90,7 +111,7 @@ class App extends Component {
   })}
 
   render() {
-    const { input, todos } = this.state;
+    const { input, todos, searched } = this.state;
     const {
       handleChange,
       handleCreate,
@@ -103,6 +124,7 @@ class App extends Component {
       <TodoListTemplate form={(
         <Form 
           value={input}
+          searched={searched}
           onKeyPress={handleKeyPress}
           onChange={handleChange}
           onCreate={handleCreate}
