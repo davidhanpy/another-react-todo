@@ -10,63 +10,32 @@ class App extends Component {
 
   state = {
     input: '',
-    original: [],
     todos: [],
     searched: [],
   }
 
   componentDidMount() {
-    // axios.get('http://127.0.0.1:8000/todolist/todo/')
-    axios.get('https://jsonplaceholder.typicode.com/todos')
+    axios.get('http://127.0.0.1:8000/todolist/todo/')
     .then((result) => {
-      // this.setState({todos:JSON.parse(result.data)});
-      this.setState({original: result.data, todos: result.data});
+      this.setState({todos: result.data});
     })
   }
   
   handleChange = (e) => {
-    const { original } = this.state;
-    if (e.target.value.length > 0) {
-      const searched = original.filter((item) => (
-        item.title.includes(e.target.value)
-      ));
-      this.setState({
-        searched,
-        input: e.target.value // input 의 다음 바뀔 값
-      });
-    } else {
-      this.setState({
-        searched: [],
-        input: e.target.value // input 의 다음 바뀔 값
-      });
-    }
+    const input = e.target.value;
+    axios.get('http://127.0.0.1:8000/todolist/todo/?text='+ input)
+    .then((result) => {
+      this.setState({input, searched:result.data});
+    })
   }
 
   handleCreate = () => {
-    const { input, original } = this.state;
-    // axios.post('http://127.0.0.1:8000/todolist/todo/', {text:input})
-    // .then((result) => {
-    // this.setState({
-    //   input:'',
-    //   todos: result.data
-    // });
-    // })
-    const filtered = original.filter((item) => (
-      item.title.includes(input)
-    ));
-    this.setState({ todos: filtered });
-}
-    // this.setState({
-    //   input: '', // 인풋 비우고
-    //   // concat 을 사용하여 배열에 추가
-    //   todos: todos.concat({
-    //     id: this.id++,
-    //     text: input,
-    //     checked: false
-    //   })
-    // });
-   
-  
+    const { input } = this.state;
+    axios.get('http://127.0.0.1:8000/todolist/todo/?text='+input)
+    .then((result) => {
+      this.setState({todos:result.data});
+    })
+  }
   
 
   handleKeyPress = (e) => {

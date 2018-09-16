@@ -5,23 +5,26 @@ from . import models
 from django.views import View
 from django.forms.models import model_to_dict
 import json
-def index(request):
-    return HttpResponse("welcome")
-# Create your views here.
-
-#클래스뷰
-#모델뷰
 
 class Havetodo(View):
     def get(self, request):
         Listdict = []
-        TodoList = models.Havetodo.objects.all()
-        for i in TodoList:
-            Listdict.append(model_to_dict(i))
-        TodoJson = json.dumps(Listdict,ensure_ascii=False)
-        return JsonResponse(TodoJson, safe=False)
-    def post(self, request):
-        # ajax post방식으로 data를 넘겨줄떄 data속에 text를 받아서 새로운 데이터 생성함 
+        requestedId = request.GET.get('id', None)
+        text = request.GET.get('text', None)
+        if text is not None:
+            TodoList = models.Havetodo.objects.filter(text__icontains = 'AJA')
+            for i in TodoList:
+                Listdict.append(model_to_dict(i))
+        elif requestedId is None:
+            TodoList = models.Havetodo.objects.all()
+            for i in TodoList:
+                Listdict.append(model_to_dict(i))
+        else:
+            Listdict = models.Havetodo.objects.get(pk=requestedId)
+        return JsonResponse(Listdict, safe=False)
+
+    def put(self, request):
+        # ajax put방식으로 data를 넘겨줄떄 data속에 text를 받아서 새로운 데이터 생성함 
         Newdict = []
         id = models.Havetodo.objects.all().count() + 1
         text = request.POST['text']

@@ -13,7 +13,7 @@ class AutoComplete extends Component {
       onKeyPress,
     } = this.props;
     const searchedItems = searched.map((item) => {
-      return <li key={item.title}>{item.title}</li>
+      return <li key={item.text}>{item.text}</li>
     });
     return (
       <div className='auto-complete'>
