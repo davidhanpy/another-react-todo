@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
-from . import models
+from . import models    
 from django.views import View
 from django.forms.models import model_to_dict
 import json
@@ -13,9 +13,9 @@ def index(request):
 #모델뷰
 
 class Havetodo(View):
-    def get(self, request, id):
+    def get(self, request):
         Listdict = []
-        TodoList = models.Havetodo.objects.filter(pk=id)
+        TodoList = models.Havetodo.objects.all()
         for i in TodoList:
             Listdict.append(model_to_dict(i))
         TodoJson = json.dumps(Listdict,ensure_ascii=False)
@@ -26,11 +26,13 @@ class Havetodo(View):
         id = models.Havetodo.objects.all().count() + 1
         text = request.POST['text']
         NewList = models.Havetodo.create(pk=id, text=text, checked=False)
-        for i in NewList:
-            Newdict.append(model_to_dict(i))
-        NewJson = json.dumps(Newdict,ensure_ascii=False)
-        return JsonResponse(NewJson, safe=False)
+        Listdict = []
+        TodoList = models.Havetodo.objects.all()
+        for i in TodoList:
+            Listdict.append(model_to_dict(i))
+        TodoJson = json.dumps(Listdict,ensure_ascii=False)
+        return JsonResponse(TodoJson, safe=False)
     def delete(self,request,id):
         Deletelist = models.Havetodo.objects.filter(pk=id)
         Deletelist.delete()
-        return JsonResponse({'error':0})
+        return JsonResponse()

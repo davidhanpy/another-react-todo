@@ -6,7 +6,7 @@ import axios from 'axios';
 
 class App extends Component {
 
-  id = 3 // 이미 0,1,2 가 존재하므로 3으로 설정
+  id = 0 // 이미 0,1,2 가 존재하므로 3으로 설정
 
   state = {
     input: '',
@@ -14,11 +14,12 @@ class App extends Component {
   }
 
   componentDidMount() {
-    axios.get('https://jsonplaceholder.typicode.com/todos')
+    axios.get('http://127.0.0.1:8000/todolist/todo/')
     .then((result) => {
-      this.setState({todos: result.data});
+      this.setState({todos:JSON.parse(result.data)});
     })
   }
+  
   handleChange = (e) => {
     this.setState({
       input: e.target.value // input 의 다음 바뀔 값
@@ -26,17 +27,26 @@ class App extends Component {
   }
 
   handleCreate = () => {
-    const { input, todos } = this.state;
+    const { input } = this.state;
+    axios.post('http://127.0.0.1:8000/todolist/todo/', {text:input})
+    .then((result) => {
     this.setState({
-      input: '', // 인풋 비우고
-      // concat 을 사용하여 배열에 추가
-      todos: todos.concat({
-        id: this.id++,
-        title: input,
-        completed: false
-      })
-    });
-  }
+      input:'',
+      todos: result.data});
+  })
+}
+    // this.setState({
+    //   input: '', // 인풋 비우고
+    //   // concat 을 사용하여 배열에 추가
+    //   todos: todos.concat({
+    //     id: this.id++,
+    //     text: input,
+    //     checked: false
+    //   })
+    // });
+   
+  
+  
 
   handleKeyPress = (e) => {
     // 눌려진 키가 Enter 면 handleCreate 호출
@@ -57,7 +67,7 @@ class App extends Component {
     // 기존의 값들을 복사하고, checked 값을 덮어쓰기
     nextTodos[index] = { 
       ...selected, 
-      completed: !selected.completed
+      checked: !selected.checked
     };
     axios.post('').then( () => {
       this.setState({
@@ -69,10 +79,15 @@ class App extends Component {
 
   handleRemove = (id) => {
     const { todos } = this.state;
+    // this.setState({
+    //   todos: todos.filter(todo => todo.id !== id)
+    // });
+    axios.delete('http://127.0.0.1:8000/todolist/todo/', {id:id})
+    .then((result) => {
     this.setState({
-      todos: todos.filter(todo => todo.id !== id)
-    });
-  }
+      input:'',
+      todos: result.data});
+  })}
 
   render() {
     const { input, todos } = this.state;
