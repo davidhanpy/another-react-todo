@@ -12,7 +12,7 @@ class Havetodo(View):
         requestedId = request.GET.get('id', None)
         text = request.GET.get('text', None)
         if text is not None:
-            TodoList = models.Havetodo.objects.filter(text__icontains = 'AJA')
+            TodoList = models.Havetodo.objects.filter(text__icontains = text)
             for i in TodoList:
                 Listdict.append(model_to_dict(i))
         elif requestedId is None:
