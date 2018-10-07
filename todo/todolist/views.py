@@ -23,19 +23,15 @@ class Havetodo(View):
             Listdict = models.Havetodo.objects.get(pk=requestedId)
         return JsonResponse(Listdict, safe=False)
 
-    def put(self, request):
-        # ajax put방식으로 data를 넘겨줄떄 data속에 text를 받아서 새로운 데이터 생성함 
-        Newdict = []
-        id = models.Havetodo.objects.all().count() + 1
-        text = request.POST['text']
-        NewList = models.Havetodo.create(pk=id, text=text, checked=False)
-        Listdict = []
-        TodoList = models.Havetodo.objects.all()
-        for i in TodoList:
-            Listdict.append(model_to_dict(i))
-        TodoJson = json.dumps(Listdict,ensure_ascii=False)
-        return JsonResponse(TodoJson, safe=False)
-    def delete(self,request,id):
-        Deletelist = models.Havetodo.objects.filter(pk=id)
+    def post(self, request):
+        # ajax post방식으로 data를 넘겨줄떄 data속에 text를 받아서 새로운 데이터 생성함
+        text = json.loads(request.body)
+        print(text['text'])
+        NewList = models.Havetodo(text=text['text'], checked=False)
+        NewList.save()
+        return JsonResponse({'error':None}, safe=False)
+    def delete(self,request):
+        requestedId = request.GET.get('id', None)
+        Deletelist = models.Havetodo.objects.get(pk=requestedId)
         Deletelist.delete()
-        return JsonResponse()
+        return JsonResponse({'error':None})

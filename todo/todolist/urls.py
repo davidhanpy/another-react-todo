@@ -1,6 +1,7 @@
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
 from . import views
 
 urlpatterns = [
-    path('todo/', views.Havetodo.as_view()),
+    path('todo/', csrf_exempt(views.Havetodo.as_view())),
 ]
