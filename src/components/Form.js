@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import './Form.css';
-import AutoComplete from '../atom/AutoComplete';
+import AutoComplete from './AutoComplete';
 import Button from '../atom/Button';
-const Form = ({value, searched, onChange, onCreate, onKeyPress}) => {
-  return (
-    <div className="form">
-      <AutoComplete value={value} searched={searched} onChange={onChange} onKeyPress={onKeyPress}/>
-      <Button onClick={onCreate}>
-        검색
-      </Button>
-      </div>
-  );
-};
 
+class Form extends PureComponent {
+  render() {
+    const { onChange, onCreate, onKeyPress } = this.props;
+    return (
+      <div className="form">
+        <AutoComplete onChange={onChange} onKeyPress={onKeyPress} />
+        <Button onClick={onCreate}>추가</Button>
+      </div>
+    );
+  }
+}
 export default Form;

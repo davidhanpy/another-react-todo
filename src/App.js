@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+
 import TodoListTemplate from './components/TodoListTemplate';
 import Form from './components/Form';
 import TodoItemList from './components/TodoItemList';
+
+import Reducers from './reducer';
 import axios from 'axios';
 
+const store = createStore(Reducers);
+
 class App extends Component {
-
-  id = 0 // 이미 0,1,2 가 존재하므로 3으로 설정
-
   state = {
     input: '',
     todos: [],
@@ -19,21 +23,32 @@ class App extends Component {
     .then((result) => {
       this.setState({todos: result.data});
     })
+    console.log('App Mount');
+  }
+  componentDidUpdate() {
+    console.log('App Update')
   }
   
   handleChange = (e) => {
     const input = e.target.value;
-    axios.get('http://127.0.0.1:8000/todolist/todo/?text='+ input)
-    .then((result) => {
-      this.setState({input, searched:result.data});
-    })
+    if ( input === '' ) {
+      this.setState({input, searched:[]});
+    } else {
+      axios.get('http://127.0.0.1:8000/todolist/todo/?text='+ input)
+        .then((result) => {
+          this.setState({input, searched:result.data});
+        });
+    }
   }
 
   handleCreate = () => {
-    const { input } = this.state;
-    axios.get('http://127.0.0.1:8000/todolist/todo/?text='+input)
+    const { input, todos } = this.state;
+    const data = {text:input};
+    axios.post('http://127.0.0.1:8000/todolist/todo/',data)
     .then((result) => {
-      this.setState({todos:result.data});
+      if (result.status === 200) {
+        this.setState({input: '', searched:[], todos:[...todos, {id: this.id++, text: input, checked: false}]});
+      }
     })
   }
   
@@ -59,11 +74,12 @@ class App extends Component {
       ...selected, 
       checked: !selected.checked
     };
-    axios.post('').then( () => {
-      this.setState({
-        todos: nextTodos
-      });
-    })
+    this.setState({
+      todos: nextTodos
+    });
+    // axios.post('').then( () => {
+      
+    // })
     
   }
 
@@ -72,36 +88,32 @@ class App extends Component {
     // this.setState({
     //   todos: todos.filter(todo => todo.id !== id)
     // });
-    axios.delete('http://127.0.0.1:8000/todolist/todo/', {id:id})
+    const newTodos = todos.filter((item) => item.id !== id);
+    axios.delete('http://127.0.0.1:8000/todolist/todo/?id='+id)
     .then((result) => {
-    this.setState({
-      input:'',
-      todos: result.data});
+      this.setState({
+        input:'',
+        todos: newTodos
+      });
   })}
 
   render() {
-    const { input, todos, searched } = this.state;
     const {
+      handleKeyPress,
       handleChange,
       handleCreate,
-      handleKeyPress,
+      handleRemove,
       handleToggle,
-      handleRemove
     } = this;
-
     return (
-      <TodoListTemplate form={(
-        <Form 
-          value={input}
-          searched={searched}
-          onKeyPress={handleKeyPress}
-          onChange={handleChange}
-          onCreate={handleCreate}
-        />
-      )}>
-        <TodoItemList todos={todos} onToggle={handleToggle} onRemove={handleRemove}/>
-      </TodoListTemplate>
-    );
+      <Provider store={store}>
+        <TodoListTemplate form={(
+          <Form />
+        )}>
+          {/* <TodoItemList onToggle={handleToggle} onRemove={handleRemove}/> */}
+        </TodoListTemplate>
+      </Provider>
+    )
   }
 }
 

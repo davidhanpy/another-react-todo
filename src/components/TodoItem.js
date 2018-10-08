@@ -1,11 +1,15 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import './TodoItem.css';
 
-class TodoItem extends Component {
+class TodoItem extends PureComponent {
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.checked !== nextProps.checked;
+  componentDidUpdate() {
+    console.log(this.props.id);
   }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return this.props.checked !== nextProps.checked;
+  // }
   
   render() {
     const { title, text, checked, id, onToggle, onRemove } = this.props;
