@@ -35,3 +35,10 @@ class Havetodo(View):
         Deletelist = models.Havetodo.objects.get(pk=requestedId)
         Deletelist.delete()
         return JsonResponse({'error':None})
+    def put(self, request):
+        requestedId = request.GET.get('id',None)
+        Updatelist = models.Havetodo.objects.get(pk=requestedId)
+        Updatelist.checked = True
+        Updatelist.save()
+        return JsonResponse({'error':None})
+

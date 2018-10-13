@@ -6,8 +6,6 @@ import axios from 'axios';
 
 class App extends Component {
 
-  id = 0 // 이미 0,1,2 가 존재하므로 3으로 설정
-
   state = {
     input: '',
     todos: [],
@@ -23,48 +21,50 @@ class App extends Component {
   
   handleChange = (e) => {
     const input = e.target.value;
-    axios.get('http://127.0.0.1:8000/todolist/todo/?text='+ input)
-    .then((result) => {
-      this.setState({input, searched:result.data});
-    })
+    if (input === '') {
+      this.setState({ input, searched: [] });
+    } else {
+      axios.get('http://127.0.0.1:8000/todolist/todo/?text=' + input)
+        .then((result) => {
+          this.setState({ input, searched: result.data });
+        });
+    }
   }
 
   handleCreate = () => {
-    const { input } = this.state;
-    axios.get('http://127.0.0.1:8000/todolist/todo/?text='+input)
-    .then((result) => {
-      this.setState({todos:result.data});
-    })
+    const { input, todos } = this.state;
+    const data = { text: input };
+    axios.post('http://127.0.0.1:8000/todolist/todo/', data)
+      .then((result) => {
+        if (result.status === 200) {
+          this.setState({ input: '', searched: [], todos: [...todos, { id: this.id++, text: input, checked: false }] });
+        }
+      })
   }
-  
+
 
   handleKeyPress = (e) => {
     // 눌려진 키가 Enter 면 handleCreate 호출
-    if(e.key === 'Enter') {
+    if (e.key === 'Enter') {
       this.handleCreate();
     }
   }
 
   handleToggle = (id) => {
     const { todos } = this.state;
-    
-    // 파라미터로 받은 id 를 가지고 몇번째 아이템인지 찾습니다.
     const index = todos.findIndex(todo => todo.id === id);
-    const selected = todos[index]; // 선택한 객체
-
-    const nextTodos = [...todos]; // 배열을 복사
-    
-    // 기존의 값들을 복사하고, checked 값을 덮어쓰기
-    nextTodos[index] = { 
-      ...selected, 
+    const selected = todos[index];
+    const nextTodos = [...todos]; 
+    nextTodos[index] = {
+      ...selected,
       checked: !selected.checked
     };
-    axios.post('').then( () => {
+    axios.put('http://127.0.0.1:8000/todolist/todo/?id='+id)
+    .then((result)=> {
       this.setState({
         todos: nextTodos
       });
-    })
-    
+    });
   }
 
   handleRemove = (id) => {
@@ -72,12 +72,15 @@ class App extends Component {
     // this.setState({
     //   todos: todos.filter(todo => todo.id !== id)
     // });
-    axios.delete('http://127.0.0.1:8000/todolist/todo/', {id:id})
-    .then((result) => {
-    this.setState({
-      input:'',
-      todos: result.data});
-  })}
+    const newTodos = todos.filter((item) => item.id !== id);
+    axios.delete('http://127.0.0.1:8000/todolist/todo/?id=' + id)
+      .then((result) => {
+        this.setState({
+          input: '',
+          todos: newTodos
+        });
+      })
+  }
 
   render() {
     const { input, todos, searched } = this.state;
